@@ -1,4 +1,4 @@
-.PHONY: lint download
+.PHONY: lint download norm
 
 images:
 	wget https://cdn.intra.42.fr/document/document/39704/leaves.zip
@@ -8,3 +8,6 @@ images:
 	mv images/Grape_* images/Grape
 
 download: images
+
+norm:
+	flake8 .
