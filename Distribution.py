@@ -8,7 +8,7 @@ IMAGE_EXTENSIONS = {".jpg", ".jpeg", ".JPG", ".JPEG"}
 
 
 def count_images_per_class(root_dir: str) -> dict[str, int]:
-    
+
     if not os.path.isdir(root_dir):
         print(f"Error: '{root_dir}' is not a valid directory.")
         sys.exit(1)
@@ -16,14 +16,17 @@ def count_images_per_class(root_dir: str) -> dict[str, int]:
     class_counts = {}
 
     for entry in sorted(os.scandir(root_dir), key=lambda e: e.name):
-        
+
         if entry.is_dir():
-        
+
             count = sum(
-                1 for f in os.scandir(entry.path)
-                if f.is_file() and os.path.splitext(f.name)[1] in IMAGE_EXTENSIONS
+                1
+                for f in os.scandir(entry.path)
+                if f.is_file()
+                and os.path.splitext(f.name)[1]
+                in IMAGE_EXTENSIONS
             )
-        
+
             if count > 0:
                 class_counts[entry.name] = count
 
@@ -35,24 +38,24 @@ def count_images_per_class(root_dir: str) -> dict[str, int]:
 
 
 def group_by_plant(class_counts):
-    
+
     grouped = defaultdict(dict)
-    
+
     for class_name, count in class_counts.items():
         parts = class_name.split("_", 1)
         plant = parts[0]
         disease = parts[1] if len(parts) > 1 else class_name
         grouped[plant][disease] = count
-    
+
     return grouped
 
 
 def plot_plant_distribution(plant_name, disease_counts):
-    
+
     labels = list(disease_counts.keys())
     values = list(disease_counts.values())
 
-    colors = plt.cm.Set2.colors[:len(labels)]
+    colors = plt.cm.Set2.colors[: len(labels)]
     title = f"{plant_name} class distribution"
 
     fig_pie, ax_pie = plt.subplots(figsize=(7, 6))
@@ -67,7 +70,7 @@ def plot_plant_distribution(plant_name, disease_counts):
         startangle=140,
         pctdistance=0.75,
     )
-    
+
     for autotext in autotexts:
         autotext.set_fontsize(9)
 
@@ -80,14 +83,21 @@ def plot_plant_distribution(plant_name, disease_counts):
         fontsize=8,
         ncol=2,
     )
-    
+
     fig_pie.tight_layout()
 
     fig_bar, ax_bar = plt.subplots(figsize=(8, 5))
     fig_bar.canvas.manager.set_window_title(f"{plant_name} - Bar Chart")
     fig_bar.suptitle(title, fontsize=14)
 
-    bars = ax_bar.bar(labels, values, color=colors, edgecolor="white", width=0.6)
+    bars = ax_bar.bar(
+        labels,
+        values,
+        color=colors,
+        edgecolor="white",
+        width=0.6
+    )
+
     ax_bar.set_xlabel("Disease class", fontsize=10)
     ax_bar.set_ylabel("Number of images", fontsize=10)
     ax_bar.set_xticks(range(len(labels)))
@@ -103,12 +113,12 @@ def plot_plant_distribution(plant_name, disease_counts):
             va="bottom",
             fontsize=9,
         )
-        
+
     fig_bar.tight_layout()
 
 
 if __name__ == "__main__":
-    
+
     if len(sys.argv) != 2:
         print("Usage: python Distribution.py <directory>")
         sys.exit(1)
@@ -120,12 +130,12 @@ if __name__ == "__main__":
     grouped = group_by_plant(class_counts)
 
     for plant, diseases in sorted(grouped.items()):
-        
+
         print(f"{plant}:")
-        
+
         for disease, count in sorted(diseases.items()):
             print(f"{disease}: {count} images")
-        
+
         print(f"Total: {sum(diseases.values())} images\n")
 
     for plant, diseases in sorted(grouped.items()):
